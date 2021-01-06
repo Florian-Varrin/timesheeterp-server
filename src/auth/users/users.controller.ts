@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   UseGuards,
   ForbiddenException,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -38,22 +39,34 @@ export class UsersController {
 
   @Get(':userId')
   @UseGuards(AuthGuard())
-  findOne(@Param('userId') userId: string, @GetUser() user: User) {
+  findOne(
+    @Param('userId') userId: string,
+    @GetUser() user: User,
+  ): Promise<SafeUserDto> {
     if (user.id !== +userId && !user.hasOneRole(['admin']))
       throw new ForbiddenException('You cannot access this user');
 
     return this.usersService.findOne(+userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch(':userId')
+  @UseGuards(AuthGuard())
+  update(
+    @Param('userId') userId: string,
+    @GetUser() user: User,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<SafeUserDto> {
+    if (user.id !== +userId && !user.hasOneRole(['admin']))
+      throw new ForbiddenException('You cannot access this user');
+    return this.usersService.update(+userId, updateUserDto);
   }
-  //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.usersService.remove(+id);
-  // }
+
+  @Delete(':userId')
+  @HttpCode(204)
+  @UseGuards(AuthGuard(), new RolesGuard(['ADMIN']))
+  remove(@Param('userId') userId: string): Promise<void> {
+    return this.usersService.remove(+userId);
+  }
 
   @Post(':userId/roles')
   @UseGuards(AuthGuard(), new RolesGuard(['ADMIN']))
@@ -61,7 +74,7 @@ export class UsersController {
     @Body('roles') roles: string[],
     @Param('userId') userId: string,
     @GetUser() user: User,
-  ) {
+  ): Promise<SafeUserDto> {
     return this.usersService.addRoles(roles, user);
   }
 

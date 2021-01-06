@@ -44,22 +44,19 @@ export class UsersService {
     return makeSafe ? user.makeSafe() : user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = <User>await this.findOne(id, false, false);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
+    const user = <User>await this.findOne(id, true, false);
 
-    await this.userRepository.save({
-      ...user,
-      ...updateUserDto,
-    });
-
-    return user.makeSafe();
+    return await this.userRepository.modify(user, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<void> {
+    const { affected } = await this.userRepository.delete(id);
+
+    if (affected === 0) throw new NotFoundException('user not found');
   }
 
-  async addRoles(roles: string[], user: User) {
+  async addRoles(roles: string[], user: User): Promise<SafeUserDto> {
     const mappedRoles = roles.map(async (role) => {
       const mappedRole = await this.roleRepository.findOne({
         name: role.toUpperCase(),
