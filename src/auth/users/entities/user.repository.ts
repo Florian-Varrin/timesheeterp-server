@@ -11,18 +11,19 @@ import { CreateUserDto } from '../dto/create-user.dto';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async signUp(createUserDto: CreateUserDto): Promise<SafeUserDto> {
+  async add(createUserDto: CreateUserDto): Promise<SafeUserDto> {
     const { email, password } = createUserDto;
 
     const user = new User();
     user.email = email;
     user.salt = await bcrypt.genSalt();
+    user.roles = [];
     user.password = await this.hashPassword(password, user.salt);
 
     try {
       await user.save();
 
-      return user.makeSafe(user);
+      return user.makeSafe();
     } catch (err) {
       const EMAIL_DUPLICATE_ERROR_CODE = '23505';
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
@@ -45,10 +46,7 @@ export class UserRepository extends Repository<User> {
     const isValid = user && (await user.validatePassword(password));
 
     if (isValid) {
-      return {
-        id: user.id,
-        email: user.email,
-      };
+      return user.makeSafe();
     }
 
     return null;

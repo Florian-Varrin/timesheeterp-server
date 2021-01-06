@@ -8,6 +8,9 @@ import { UserRepository } from './users/entities/user.repository';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
+import { RolesController } from './roles/roles.controller';
+import { RolesService } from './roles/roles.service';
+import { RoleRepository } from './roles/entities/role.repository';
 
 @Module({
   imports: [
@@ -20,10 +23,10 @@ import { UsersService } from './users/users.service';
         expiresIn: 3600,
       },
     }),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, RoleRepository]),
   ],
-  controllers: [UsersController, AuthController],
-  providers: [AuthService, JwtStrategy, UsersService],
+  controllers: [UsersController, RolesController, AuthController],
+  providers: [UsersService, RolesService, AuthService, JwtStrategy],
   exports: [JwtStrategy],
 })
 export class AuthModule {}
