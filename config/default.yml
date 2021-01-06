@@ -1,0 +1,15 @@
+server:
+  port: PORT
+
+db:
+  type: 'postgres'
+  port: DB_PORT
+  database: DB_NAME
+  host: DB_HOST
+  username: DB_USERNAME
+  password: DB_PASSWORD
+  synchronize: DB_SYNCHRONIZE
+
+jwt:
+  secret: JWT_SECRET
+  expiresIn: 3600
