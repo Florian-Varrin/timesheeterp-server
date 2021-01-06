@@ -6,11 +6,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserRepository } from './users/entities/user.repository';
 import { JwtStrategy } from './jwt.strategy';
-import { UsersModule } from './users/users.module';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
 
 @Module({
   imports: [
-    UsersModule,
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),
@@ -22,8 +22,8 @@ import { UsersModule } from './users/users.module';
     }),
     TypeOrmModule.forFeature([UserRepository]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  controllers: [UsersController, AuthController],
+  providers: [AuthService, JwtStrategy, UsersService],
   exports: [JwtStrategy],
 })
 export class AuthModule {}

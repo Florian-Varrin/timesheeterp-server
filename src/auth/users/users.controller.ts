@@ -6,7 +6,10 @@ import {
   Param,
   Delete,
   Patch,
-  ValidationPipe, UseGuards,
+  ValidationPipe,
+  UseGuards,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -24,6 +27,7 @@ export class UsersController {
   async create(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<SafeUserDto> {
+    console.log('create user');
     return await this.usersService.create(createUserDto);
   }
 
@@ -31,9 +35,14 @@ export class UsersController {
   // findAll() {
   //   return this.usersService.findAll();
   // }
+
+  // @UseGuards(AuthGuard())
+  // @Get(':userId')
+  // findOne(@Param('userId') userId: string, @GetUser() user: User) {
+  //   if (user.id !== +userId)
+  //     throw new ForbiddenException('You cannot access this user');
   //
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
+  //   return this.usersService.findOne(+userId);
   // }
   //
   // @Patch(':id')
