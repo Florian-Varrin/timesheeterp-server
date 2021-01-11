@@ -3,9 +3,8 @@ import * as config from 'config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  console.log('secret', config.get('jwt.secret'));
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(config.get('api.prefix'));
 
   const { port } = config.get('server');
   await app.listen(port);

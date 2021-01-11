@@ -1,6 +1,9 @@
 server:
   port: PORT
 
+api:
+  prefix: 'api/v1'
+
 db:
   type: 'postgres'
   port: DB_PORT
