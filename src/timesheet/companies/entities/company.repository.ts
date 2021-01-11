@@ -46,7 +46,7 @@ export class CompanyRepository extends Repository<Company> {
     } catch (err) {
       const EMAIL_DUPLICATE_ERROR_CODE = '23505';
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
-        throw new ConflictException('email already exists');
+        throw new ConflictException('Company already exists');
 
       throw new InternalServerErrorException(
         'An error as occurred while creating a company',

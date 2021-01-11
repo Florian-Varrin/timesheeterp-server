@@ -28,7 +28,7 @@ export class UserRepository extends Repository<User> {
     } catch (err) {
       const EMAIL_DUPLICATE_ERROR_CODE = '23505';
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
-        throw new ConflictException('email already exists');
+        throw new ConflictException('Email already exists');
 
       throw new InternalServerErrorException(
         'An error as occurred while creating a user',
@@ -56,7 +56,7 @@ export class UserRepository extends Repository<User> {
     } catch (err) {
       const EMAIL_DUPLICATE_ERROR_CODE = '23505';
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
-        throw new ConflictException('email already exists');
+        throw new ConflictException('Email already exists');
 
       throw new InternalServerErrorException(
         'An error as occurred while updating a user',
