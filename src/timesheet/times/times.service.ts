@@ -31,11 +31,9 @@ export class TimesService {
     user: User,
     timesFilterDto: TimesFilterDto,
   ): Promise<Time[]> {
-    const times = await this.timeRepository.getTimes(companyId, timesFilterDto);
+    await this.companiesService.findOne(companyId, user);
 
-    // if no times, check if company exist, if not, 404 or 403 on company
-    if (times.length === 0)
-      await this.companiesService.findOne(companyId, user);
+    const times = await this.timeRepository.getTimes(companyId, timesFilterDto);
 
     return times;
   }
