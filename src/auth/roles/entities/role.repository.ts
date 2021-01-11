@@ -8,7 +8,7 @@ import { RoleDto } from '../dto/role.dto';
 
 @EntityRepository(Role)
 export class RoleRepository extends Repository<Role> {
-  async add(createRoleDto: RoleDto): Promise<RoleDto> {
+  async createRole(createRoleDto: RoleDto): Promise<RoleDto> {
     const { name } = createRoleDto;
 
     const role = new Role();
@@ -23,7 +23,9 @@ export class RoleRepository extends Repository<Role> {
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
         throw new ConflictException('role already exists');
 
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'An error as occurred while creating a role',
+      );
     }
   }
 }

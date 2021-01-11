@@ -12,7 +12,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async add(createUserDto: CreateUserDto): Promise<SafeUserDto> {
+  async createUser(createUserDto: CreateUserDto): Promise<SafeUserDto> {
     const { email, password } = createUserDto;
 
     const user = new User();
@@ -30,11 +30,16 @@ export class UserRepository extends Repository<User> {
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
         throw new ConflictException('email already exists');
 
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'An error as occurred while creating a user',
+      );
     }
   }
 
-  async modify(user: User, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
+  async updateUser(
+    user: User,
+    updateUserDto: UpdateUserDto,
+  ): Promise<SafeUserDto> {
     const { email, password } = updateUserDto;
 
     if (updateUserDto.email) user.email = email;
@@ -53,7 +58,9 @@ export class UserRepository extends Repository<User> {
       if (err.code === EMAIL_DUPLICATE_ERROR_CODE)
         throw new ConflictException('email already exists');
 
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'An error as occurred while updating a user',
+      );
     }
   }
 
