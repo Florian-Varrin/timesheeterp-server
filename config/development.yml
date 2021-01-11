@@ -1,0 +1,13 @@
+server:
+  port: 3000
+
+db:
+  port: 5432
+  database: 'timesheeter'
+  host: 'localhost'
+  username: 'postgres'
+  password: 'root'
+  synchronize: true
+
+jwt:
+  secret: 'reallysecret'
