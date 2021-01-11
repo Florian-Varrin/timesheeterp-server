@@ -39,7 +39,7 @@ export class TimesController {
     @Param('companyId') companyId: string,
     @GetUser() user: User,
     @Query() timesFilterDto: TimesFilterDto,
-  ) {
+  ): Promise<Time[]> {
     return this.timesService.findAll(+companyId, user, timesFilterDto);
   }
 
@@ -48,7 +48,7 @@ export class TimesController {
     @Param('timeId') timeId: string,
     @Param('companyId') companyId: string,
     @GetUser() user: User,
-  ) {
+  ): Promise<Time> {
     return this.timesService.findOne(+timeId, +companyId, user);
   }
 
@@ -58,7 +58,7 @@ export class TimesController {
     @Param('companyId') companyId: string,
     @GetUser() user: User,
     @Body() updateTimeDto: UpdateTimeDto,
-  ) {
+  ): Promise<Time> {
     return this.timesService.update(+timeId, +companyId, user, updateTimeDto);
   }
 
@@ -68,7 +68,7 @@ export class TimesController {
     @Param('timeId') timeId: string,
     @Param('companyId') companyId: string,
     @GetUser() user: User,
-  ) {
+  ): Promise<void> {
     return this.timesService.remove(+timeId, +companyId, user);
   }
 }

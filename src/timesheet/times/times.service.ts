@@ -60,7 +60,7 @@ export class TimesService {
     companyId: number,
     user: User,
     updateTimeDto: UpdateTimeDto,
-  ) {
+  ): Promise<Time> {
     const { date, duration, description } = updateTimeDto;
 
     const time = await this.findOne(timeId, companyId, user);
@@ -72,7 +72,7 @@ export class TimesService {
     return await time.save();
   }
 
-  async remove(timeId: number, companyId: number, user: User) {
+  async remove(timeId: number, companyId: number, user: User): Promise<void> {
     await this.companiesService.findOne(companyId, user);
 
     const { affected } = await this.timeRepository.delete(timeId);
