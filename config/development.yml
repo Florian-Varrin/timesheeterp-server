@@ -10,4 +10,5 @@ db:
   synchronize: true
 
 jwt:
+  expiresIn: 86400
   secret: 'reallysecret'

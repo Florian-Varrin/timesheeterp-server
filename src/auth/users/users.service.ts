@@ -21,7 +21,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
-    return await this.userRepository.add(createUserDto);
+    return await this.userRepository.createUser(createUserDto);
   }
 
   async findAll(): Promise<SafeUserDto[]> {
@@ -39,7 +39,7 @@ export class UsersService {
 
     const user = await this.userRepository.findOne({ id }, options);
 
-    if (!user) throw new NotFoundException('user not found');
+    if (!user) throw new NotFoundException('User not found');
 
     return makeSafe ? user.makeSafe() : user;
   }
@@ -47,13 +47,13 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
     const user = <User>await this.findOne(id, true, false);
 
-    return await this.userRepository.modify(user, updateUserDto);
+    return await this.userRepository.updateUser(user, updateUserDto);
   }
 
   async remove(id: number): Promise<void> {
     const { affected } = await this.userRepository.delete(id);
 
-    if (affected === 0) throw new NotFoundException('user not found');
+    if (affected === 0) throw new NotFoundException('User not found');
   }
 
   async addRoles(roles: string[], user: User): Promise<SafeUserDto> {
@@ -63,7 +63,7 @@ export class UsersService {
       });
 
       if (!mappedRole)
-        throw new BadRequestException(`role \"${role}\" does not exist`);
+        throw new BadRequestException(`Role \"${role}\" does not exist`);
 
       return mappedRole;
     });

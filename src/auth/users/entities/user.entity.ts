@@ -4,6 +4,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import { SafeUserDto } from '../dto/safe-user.dto';
 import { deepClone } from '../../../utils/deep-clone.util';
 import { Role } from '../../roles/entities/role.entity';
+import { Company } from '../../../timesheet/companies/entities/company.entity';
 
 @Entity()
 @Unique(['email'])
@@ -30,6 +32,9 @@ export class User extends BaseEntity {
   @ManyToMany(() => Role)
   @JoinTable()
   roles: Role[];
+
+  @OneToMany((type) => Company, (company) => company.user, { eager: true })
+  companies: Company[];
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
