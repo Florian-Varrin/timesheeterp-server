@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,16 +10,17 @@ import { UserRepository } from './entities/user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SafeUserDto } from './dto/safe-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { RoleRepository } from '../roles/entities/role.repository';
 import { User } from './entities/user.entity';
+import { RolesEnum } from '../enums/roles.enum';
+import { UserRoleRepository } from './entities/user-role.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
-    @InjectRepository(RoleRepository)
-    private roleRepository: RoleRepository,
+    @InjectRepository(UserRoleRepository)
+    private userRoleRepository: UserRoleRepository,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<SafeUserDto> {
@@ -56,49 +59,41 @@ export class UsersService {
     if (affected === 0) throw new NotFoundException('User not found');
   }
 
-  async addRoles(roles: string[], user: User): Promise<SafeUserDto> {
-    const mappedRoles = roles.map(async (role) => {
-      const mappedRole = await this.roleRepository.findOne({
-        name: role.toUpperCase(),
-      });
+  async addRoles(roles: string[], userId: number): Promise<SafeUserDto> {
+    const user = (await this.findOne(userId, false, false)) as User;
 
-      if (!mappedRole)
+    for (let role of roles) {
+      role = role.toUpperCase();
+
+      if (!RolesEnum[role])
         throw new BadRequestException(`Role \"${role}\" does not exist`);
 
-      return mappedRole;
-    });
+      const roleAlreadyExist = !!(await this.userRoleRepository.findOne({
+        user_id: userId,
+        role,
+      }));
 
-    const resolvedMappedRoles = await Promise.all(mappedRoles);
+      if (roleAlreadyExist)
+        throw new ConflictException(
+          `The user ${userId} already has the role \"${role}\"`,
+        );
 
-    const userRoles = [...user.roles];
-    const presentRolesIds = userRoles.map((role) => role.id);
-    resolvedMappedRoles.forEach((role) => {
-      if (!presentRolesIds.includes(role.id)) userRoles.push(role);
-    });
+      await this.userRoleRepository.createUserRole({ user, role });
+    }
 
-    user.roles = userRoles;
-
-    await user.save();
-
-    return user.makeSafe();
+    return (await this.findOne(user.id)) as SafeUserDto;
   }
 
   async removeRole(roleId: number, user: User): Promise<SafeUserDto> {
-    const role = await this.roleRepository.findOne(roleId);
-    if (!role)
-      throw new NotFoundException(`role with id ${roleId} does not exist`);
+    const userRole = await this.userRoleRepository.findOne(roleId);
 
-    const hasThisRole = user.roles.some((userRole) => userRole.id === role.id);
+    if (!userRole) throw new NotFoundException('Role not found');
 
-    if (!hasThisRole)
-      throw new BadRequestException(
-        `the user does not have the role \"${role.name}\"`,
-      );
+    if (userRole.user_id !== user.id)
+      throw new ForbiddenException('You cannot access this role');
 
-    user.roles = user.roles.filter((userRole) => userRole.id !== role.id);
+    await this.userRoleRepository.delete(roleId);
 
-    await user.save();
-
-    return user.makeSafe();
+    return (await this.findOne(user.id)) as SafeUserDto;
   }
 }

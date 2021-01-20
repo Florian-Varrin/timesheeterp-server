@@ -2,7 +2,6 @@ import {
   BaseEntity,
   Column,
   Entity,
-  JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,8 +10,10 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { SafeUserDto } from '../dto/safe-user.dto';
 import { deepClone } from '../../../utils/deep-clone.util';
-import { Role } from '../../roles/entities/role.entity';
 import { Company } from '../../../timesheet/companies/entities/company.entity';
+import { RolesEnum } from '../../enums/roles.enum';
+import { UserRole } from './user-role.entity';
+import { FormattedUserRolesDto } from '../dto/formatted-user-roles.dto';
 
 @Entity()
 @Unique(['email'])
@@ -29,9 +30,10 @@ export class User extends BaseEntity {
   @Column()
   salt: string;
 
-  @ManyToMany(() => Role)
-  @JoinTable()
-  roles: Role[];
+  @OneToMany((type) => UserRole, (userRole) => userRole.user, {
+    eager: true,
+  })
+  roles: UserRole[];
 
   @OneToMany((type) => Company, (company) => company.user, { eager: true })
   companies: Company[];
@@ -42,21 +44,31 @@ export class User extends BaseEntity {
     return hash === this.password;
   }
 
-  hasOneRole(roles: string[]): boolean {
+  hasOneRole(roles: RolesEnum[]): boolean {
     const { roles: userRoles } = this;
 
-    roles = roles.map((role) => role.toUpperCase());
+    const hasPermission = userRoles.some((role) => {
+      const roleValue = (RolesEnum[role.role] as unknown) as number;
+      return roles.includes(roleValue);
+    });
 
-    return userRoles.some((userRole) => roles.includes(userRole.name));
+    return hasPermission;
   }
 
   makeSafe(): SafeUserDto {
     const safeProperties = SafeUserDto.getProperties();
 
-    const safeUser = deepClone(this);
+    const safeUser = deepClone(this) as SafeUserDto;
     for (const key in safeUser) {
       if (!safeProperties.includes(key)) delete safeUser[key];
     }
+
+    safeUser.roles = (this.roles.map((role) => {
+      return {
+        id: role.id as number,
+        role: role.role as string,
+      };
+    }) as unknown) as FormattedUserRolesDto;
 
     return <SafeUserDto>safeUser;
   }
