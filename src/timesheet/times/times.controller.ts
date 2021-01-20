@@ -20,7 +20,7 @@ import { User } from '../../auth/users/entities/user.entity';
 import { Time } from './entities/time.entity';
 import { TimesFilterDto } from './dto/times-filter.dto';
 
-@Controller('companies/:companyId/times')
+@Controller('projects/:projectId/times')
 @UseGuards(AuthGuard())
 export class TimesController {
   constructor(private readonly timesService: TimesService) {}
@@ -28,47 +28,47 @@ export class TimesController {
   @Post()
   create(
     @Body(ValidationPipe) createTimeDto: CreateTimeDto,
-    @Param('companyId') companyId: string,
+    @Param('projectId') projectId: string,
     @GetUser() user: User,
   ): Promise<Time> {
-    return this.timesService.create(createTimeDto, +companyId, user);
+    return this.timesService.create(createTimeDto, +projectId, user);
   }
 
   @Get()
   findAll(
-    @Param('companyId') companyId: string,
+    @Param('projectId') projectId: string,
     @GetUser() user: User,
     @Query() timesFilterDto: TimesFilterDto,
   ): Promise<Time[]> {
-    return this.timesService.findAll(+companyId, user, timesFilterDto);
+    return this.timesService.findAll(+projectId, user, timesFilterDto);
   }
 
   @Get(':timeId')
   findOne(
     @Param('timeId') timeId: string,
-    @Param('companyId') companyId: string,
+    @Param('projectId') projectId: string,
     @GetUser() user: User,
   ): Promise<Time> {
-    return this.timesService.findOne(+timeId, +companyId, user);
+    return this.timesService.findOne(+timeId, +projectId, user);
   }
 
   @Patch(':timeId')
   update(
     @Param('timeId') timeId: string,
-    @Param('companyId') companyId: string,
+    @Param('projectId') projectId: string,
     @GetUser() user: User,
     @Body() updateTimeDto: UpdateTimeDto,
   ): Promise<Time> {
-    return this.timesService.update(+timeId, +companyId, user, updateTimeDto);
+    return this.timesService.update(+timeId, +projectId, user, updateTimeDto);
   }
 
   @Delete(':timeId')
   @HttpCode(204)
   remove(
     @Param('timeId') timeId: string,
-    @Param('companyId') companyId: string,
+    @Param('projectId') projectId: string,
     @GetUser() user: User,
   ): Promise<void> {
-    return this.timesService.remove(+timeId, +companyId, user);
+    return this.timesService.remove(+timeId, +projectId, user);
   }
 }

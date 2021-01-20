@@ -13,7 +13,7 @@ import { Time } from '../../times/entities/time.entity';
 
 @Entity()
 @Unique(['name'])
-export class Company extends BaseEntity {
+export class Project extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,11 +26,11 @@ export class Company extends BaseEntity {
   @Column()
   archived: boolean;
 
-  @ManyToOne((type) => User, (user) => user.companies, { eager: false })
+  @ManyToOne((type) => User, (user) => user.projects, { eager: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany((type) => Time, (time) => time.company, { eager: false })
+  @OneToMany((type) => Time, (time) => time.project, { eager: false })
   times: Time[];
 
   @Column()

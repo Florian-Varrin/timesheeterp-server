@@ -2,20 +2,20 @@ import { EntityRepository, Repository } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Time } from './time.entity';
 import { CreateTimeDto } from '../dto/create-time.dto';
-import { Company } from '../../companies/entities/company.entity';
+import { Project } from '../../projects/entities/project.entity';
 import { TimesFilterDto } from '../dto/times-filter.dto';
 
 @EntityRepository(Time)
 export class TimeRepository extends Repository<Time> {
   async getTimes(
-    companyId: number,
+    projectId: number,
     timesFilterDto: TimesFilterDto,
   ): Promise<Time[]> {
     const { start_date: startDate, end_date: endDate } = timesFilterDto;
 
     const query = this.createQueryBuilder('time');
 
-    query.andWhere('time.company_id = :companyId', { companyId });
+    query.andWhere('time.project_id = :projectId', { projectId });
 
     if (startDate) query.andWhere('time.date >= :startDate', { startDate });
     if (endDate) query.andWhere('time.date <= :endDate', { endDate });
@@ -27,7 +27,7 @@ export class TimeRepository extends Repository<Time> {
 
   async createTime(
     createTimeDto: CreateTimeDto,
-    company: Company,
+    project: Project,
   ): Promise<Time> {
     const { date, duration, description } = createTimeDto;
 
@@ -35,12 +35,12 @@ export class TimeRepository extends Repository<Time> {
     time.date = new Date(date);
     time.duration = +duration;
     time.description = description;
-    time.company = company;
+    time.project = project;
 
     try {
       await time.save();
 
-      delete time.company_id;
+      delete time.project_id;
 
       return time;
     } catch (err) {
