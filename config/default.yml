@@ -1,3 +1,7 @@
+app:
+  name: 'TimeSheetER'
+  description: 'Manage timesheet'
+
 server:
   port: PORT
 

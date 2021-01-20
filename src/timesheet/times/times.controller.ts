@@ -19,13 +19,17 @@ import { GetUser } from '../../auth/decorators/get-users.decorator';
 import { User } from '../../auth/users/entities/user.entity';
 import { Time } from './entities/time.entity';
 import { TimesFilterDto } from './dto/times-filter.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('projects/:projectId/times')
+@ApiTags('times')
+@ApiBearerAuth()
 @UseGuards(AuthGuard())
 export class TimesController {
   constructor(private readonly timesService: TimesService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a time for a project' })
   create(
     @Body(ValidationPipe) createTimeDto: CreateTimeDto,
     @Param('projectId') projectId: string,
@@ -35,6 +39,7 @@ export class TimesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all times for a project' })
   findAll(
     @Param('projectId') projectId: string,
     @GetUser() user: User,
@@ -44,6 +49,7 @@ export class TimesController {
   }
 
   @Get(':timeId')
+  @ApiOperation({ summary: 'Get a time' })
   findOne(
     @Param('timeId') timeId: string,
     @Param('projectId') projectId: string,
@@ -53,6 +59,7 @@ export class TimesController {
   }
 
   @Patch(':timeId')
+  @ApiOperation({ summary: 'Update a time' })
   update(
     @Param('timeId') timeId: string,
     @Param('projectId') projectId: string,
@@ -64,6 +71,7 @@ export class TimesController {
 
   @Delete(':timeId')
   @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a time' })
   remove(
     @Param('timeId') timeId: string,
     @Param('projectId') projectId: string,
