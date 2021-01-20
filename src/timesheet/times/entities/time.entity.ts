@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Company } from '../../companies/entities/company.entity';
+import { Project } from '../../projects/entities/project.entity';
 
 @Entity()
 export class Time extends BaseEntity {
@@ -22,10 +22,10 @@ export class Time extends BaseEntity {
   @Column()
   description: string;
 
-  @ManyToOne((type) => Company, (company) => company.times, { eager: false })
-  @JoinColumn({ name: 'company_id' })
-  company: Company;
+  @ManyToOne((type) => Project, (project) => project.times, { eager: false })
+  @JoinColumn({ name: 'project_id' })
+  project: Project;
 
   @Column()
-  company_id: number;
+  project_id: number;
 }

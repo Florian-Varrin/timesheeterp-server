@@ -1,6 +1,6 @@
 import { IsNumber, IsString, MaxLength, Min, MinLength } from 'class-validator';
 
-export class CreateCompanyDto {
+export class CreateProjectDto {
   @IsString()
   @MinLength(2)
   @MaxLength(10)

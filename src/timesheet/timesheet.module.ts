@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
-import { CompaniesModule } from './companies/companies.module';
+import { ProjectsModule } from './projects/projects.module';
 import { TimesModule } from './times/times.module';
 
 @Module({
-  imports: [CompaniesModule, AuthModule, TimesModule],
+  imports: [ProjectsModule, AuthModule, TimesModule],
 })
 export class TimesheetModule {}

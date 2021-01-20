@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTimeDto } from './dto/create-time.dto';
 import { UpdateTimeDto } from './dto/update-time.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CompaniesService } from '../companies/companies.service';
+import { ProjectsService } from '../projects/projects.service';
 import { User } from '../../auth/users/entities/user.entity';
 import { TimeRepository } from './entities/time.repository';
 import { Time } from './entities/time.entity';
@@ -13,38 +13,38 @@ export class TimesService {
   constructor(
     @InjectRepository(TimeRepository)
     private timeRepository: TimeRepository,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
   ) {}
 
   async create(
     createTimeDto: CreateTimeDto,
-    companyId: number,
+    projectId: number,
     user: User,
   ): Promise<Time> {
-    const company = await this.companiesService.findOne(companyId, user);
+    const project = await this.projectsService.findOne(projectId, user);
 
-    return this.timeRepository.createTime(createTimeDto, company);
+    return this.timeRepository.createTime(createTimeDto, project);
   }
 
   async findAll(
-    companyId: number,
+    projectId: number,
     user: User,
     timesFilterDto: TimesFilterDto,
   ): Promise<Time[]> {
-    await this.companiesService.findOne(companyId, user);
+    await this.projectsService.findOne(projectId, user);
 
-    const times = await this.timeRepository.getTimes(companyId, timesFilterDto);
+    const times = await this.timeRepository.getTimes(projectId, timesFilterDto);
 
     return times;
   }
 
-  async findOne(timeId: number, companyId: number, user: User): Promise<Time> {
-    await this.companiesService.findOne(companyId, user);
+  async findOne(timeId: number, projectId: number, user: User): Promise<Time> {
+    await this.projectsService.findOne(projectId, user);
 
     const time = await this.timeRepository.findOne({
       where: {
         id: timeId,
-        company_id: companyId,
+        project_id: projectId,
       },
     });
 
@@ -55,13 +55,13 @@ export class TimesService {
 
   async update(
     timeId: number,
-    companyId: number,
+    projectId: number,
     user: User,
     updateTimeDto: UpdateTimeDto,
   ): Promise<Time> {
     const { date, duration, description } = updateTimeDto;
 
-    const time = await this.findOne(timeId, companyId, user);
+    const time = await this.findOne(timeId, projectId, user);
 
     if (date) time.date = new Date(date);
     if (duration) time.duration = duration;
@@ -70,8 +70,8 @@ export class TimesService {
     return await time.save();
   }
 
-  async remove(timeId: number, companyId: number, user: User): Promise<void> {
-    await this.companiesService.findOne(companyId, user);
+  async remove(timeId: number, projectId: number, user: User): Promise<void> {
+    await this.projectsService.findOne(projectId, user);
 
     const { affected } = await this.timeRepository.delete(timeId);
 

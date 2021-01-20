@@ -4,13 +4,13 @@ import { TimesController } from './times.controller';
 import { AuthModule } from '../../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TimeRepository } from './entities/time.repository';
-import { CompaniesModule } from '../companies/companies.module';
+import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TimeRepository]),
     AuthModule,
-    CompaniesModule,
+    ProjectsModule,
   ],
   controllers: [TimesController],
   providers: [TimesService],

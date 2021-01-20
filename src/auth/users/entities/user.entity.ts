@@ -2,7 +2,6 @@ import {
   BaseEntity,
   Column,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -10,7 +9,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { SafeUserDto } from '../dto/safe-user.dto';
 import { deepClone } from '../../../utils/deep-clone.util';
-import { Company } from '../../../timesheet/companies/entities/company.entity';
+import { Project } from '../../../timesheet/projects/entities/project.entity';
 import { RolesEnum } from '../../enums/roles.enum';
 import { UserRole } from './user-role.entity';
 import { FormattedUserRolesDto } from '../dto/formatted-user-roles.dto';
@@ -35,8 +34,8 @@ export class User extends BaseEntity {
   })
   roles: UserRole[];
 
-  @OneToMany((type) => Company, (company) => company.user, { eager: true })
-  companies: Company[];
+  @OneToMany((type) => Project, (project) => project.user, { eager: true })
+  projects: Project[];
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
