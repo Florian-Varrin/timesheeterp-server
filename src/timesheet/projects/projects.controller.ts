@@ -17,13 +17,17 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../../auth/decorators/get-users.decorator';
 import { User } from '../../auth/users/entities/user.entity';
 import { Project } from './entities/project.entity';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('projects')
+@ApiTags('projects')
+@ApiBearerAuth()
 @UseGuards(AuthGuard())
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a project' })
   create(
     @Body(ValidationPipe) createProjectDto: CreateProjectDto,
     @GetUser() user: User,
@@ -32,11 +36,13 @@ export class ProjectsController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all projects' })
   findAll(@GetUser() user: User): Promise<Project[]> {
     return this.projectsService.findAll(user);
   }
 
   @Get(':projectId')
+  @ApiOperation({ summary: 'Get a project' })
   findOne(
     @Param('projectId') projectId: string,
     @GetUser() user: User,
@@ -45,6 +51,7 @@ export class ProjectsController {
   }
 
   @Patch(':projectId')
+  @ApiOperation({ summary: 'Update a project' })
   update(
     @Param('projectId') projectId: string,
     @Body() updateProjectDto: UpdateProjectDto,
@@ -55,6 +62,7 @@ export class ProjectsController {
 
   @Delete(':projectId')
   @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a project' })
   remove(
     @Param('projectId') projectId: string,
     @GetUser() user: User,

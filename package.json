@@ -2,8 +2,8 @@
   "name": "server",
   "version": "0.0.1",
   "description": "",
-  "author": "",
-  "private": true,
+  "author": "Florian Varrin",
+  "private": false,
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "doc:app:serve": "start http://localhost:8080 && npx @compodoc/compodoc -p tsconfig.json -s -n TimeSheetER"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",
@@ -27,20 +28,25 @@
     "@nestjs/mapped-types": "^0.1.1",
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.5.1",
+    "@nestjs/serve-static": "^2.1.4",
+    "@nestjs/swagger": "^4.7.11",
     "@nestjs/typeorm": "^7.1.5",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "config": "^3.3.3",
+    "json2yaml": "^1.1.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "pg": "^8.5.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
+    "swagger-ui-express": "^4.1.6",
     "typeorm": "^0.2.29"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "^1.1.11",
     "@nestjs/cli": "^7.5.1",
     "@nestjs/schematics": "^7.1.3",
     "@nestjs/testing": "^7.5.1",

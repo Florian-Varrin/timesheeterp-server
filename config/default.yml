@@ -1,3 +1,7 @@
+app:
+  name: 'TimeSheetERP'
+  description: 'Manage timesheet'
+
 server:
   port: PORT
 

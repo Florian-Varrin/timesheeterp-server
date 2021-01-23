@@ -3,7 +3,7 @@ server:
 
 db:
   port: 5432
-  database: 'timesheeter'
+  database: 'timesheeterp'
   host: 'localhost'
   username: 'postgres'
   password: 'root'
