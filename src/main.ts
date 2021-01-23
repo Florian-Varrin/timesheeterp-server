@@ -1,27 +1,17 @@
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import * as config from 'config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { version } = require('../package.json');
+import { DocumentationService } from './documentation/documentation.service';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix(config.get('api.prefix'));
 
-  const { title, description } = config.get('app');
-  const documentBuilder = new DocumentBuilder()
-    .setTitle(title)
-    .setDescription(description)
-    .setVersion(version)
-    .addBearerAuth()
-    .addTag('auth')
-    .addTag('users')
-    .addTag('projects')
-    .addTag('times')
-    .build();
-  const document = SwaggerModule.createDocument(app, documentBuilder);
-  SwaggerModule.setup('documentation', app, document);
+  DocumentationService.getInstance(app);
+
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   const { port } = config.get('server');
   await app.listen(port);

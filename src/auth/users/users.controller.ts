@@ -12,12 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SafeUserDto } from './dto/safe-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -26,6 +21,9 @@ import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesEnum } from '../enums/roles.enum';
 import { RolesGuard } from '../guards/roles.guard';
+import { UsersDocumentation } from './users.documentation';
+
+const doc = new UsersDocumentation();
 
 @Controller('users')
 @ApiTags('users')
@@ -33,7 +31,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a user' })
+  @ApiOperation(doc.controller.create)
   async create(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<SafeUserDto> {
@@ -41,7 +39,7 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
+  @ApiOperation(doc.controller.findAll)
   @ApiBearerAuth()
   @UseGuards(AuthGuard(), new RolesGuard([RolesEnum.ADMIN]))
   findAll(): Promise<SafeUserDto[]> {
@@ -49,7 +47,7 @@ export class UsersController {
   }
 
   @Get(':userId')
-  @ApiOperation({ summary: 'Get a user' })
+  @ApiOperation(doc.controller.findOne)
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
   findOne(
@@ -63,7 +61,7 @@ export class UsersController {
   }
 
   @Patch(':userId')
-  @ApiOperation({ summary: 'Update a user' })
+  @ApiOperation(doc.controller.update)
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
   update(
@@ -78,7 +76,7 @@ export class UsersController {
 
   @Delete(':userId')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOperation(doc.controller.remove)
   @ApiBearerAuth()
   @UseGuards(AuthGuard(), new RolesGuard([RolesEnum.ADMIN]))
   remove(@Param('userId') userId: string): Promise<void> {
@@ -86,7 +84,7 @@ export class UsersController {
   }
 
   @Post(':userId/roles')
-  @ApiOperation({ summary: 'Add a role to a user' })
+  @ApiOperation(doc.controller.addRoles)
   @ApiBearerAuth()
   @UseGuards(AuthGuard(), new RolesGuard([RolesEnum.ADMIN]))
   async addRoles(
@@ -97,7 +95,7 @@ export class UsersController {
   }
 
   @Delete(':userId/roles/:roleId')
-  @ApiOperation({ summary: 'Delete a role to a user' })
+  @ApiOperation(doc.controller.removeRole)
   @ApiBearerAuth()
   @UseGuards(AuthGuard(), new RolesGuard([RolesEnum.ADMIN]))
   async removeRole(

@@ -1,9 +1,12 @@
-import { UserRole } from '../entities/user-role.entity';
 import { FormattedUserRolesDto } from './formatted-user-roles.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SafeUserDto {
+  @ApiProperty()
   id: number;
+  @ApiProperty()
   email: string;
+  @ApiProperty()
   roles: FormattedUserRolesDto;
 
   static getProperties() {
