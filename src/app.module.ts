@@ -5,6 +5,7 @@ import { typeOrmConfigOptions } from './config/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { TimesheetModule } from './timesheet/timesheet.module';
 import { DocumentationModule } from './documentation/documentation.module';
+import { CommandModule } from 'nestjs-command';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DocumentationModule } from './documentation/documentation.module';
     AuthModule,
     TimesheetModule,
     DocumentationModule,
+    CommandModule,
   ],
   controllers: [AppController],
   providers: [],

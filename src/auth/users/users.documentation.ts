@@ -1,4 +1,6 @@
 import { AbstractDocumentation } from '../../documentation/abstract.documentation';
+import { CRUDControllerDocumentationInterface } from '../../documentation/interfaces/CRUDControllerDocumentationInterface';
+import { CRUDDTODocumentationInterface } from '../../documentation/interfaces/CRUDDTODocumentationInterface';
 
 export class UsersDocumentation
   extends AbstractDocumentation

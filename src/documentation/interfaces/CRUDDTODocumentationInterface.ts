@@ -1,4 +1,4 @@
-interface CRUDDTODocumentationInterface {
+export interface CRUDDTODocumentationInterface {
   dto: {
     create: Record<string, unknown>;
   };

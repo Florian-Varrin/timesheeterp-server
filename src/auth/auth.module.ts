@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
 import { UserRoleRepository } from './users/entities/user-role.repository';
+import { UserCommand } from './users/user.command';
 
 const { secret, expiresIn } = config.get('jwt');
 
@@ -25,7 +26,7 @@ const { secret, expiresIn } = config.get('jwt');
     TypeOrmModule.forFeature([UserRepository, UserRoleRepository]),
   ],
   controllers: [UsersController, AuthController],
-  providers: [UsersService, AuthService, JwtStrategy],
+  providers: [UsersService, UserCommand, AuthService, JwtStrategy],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

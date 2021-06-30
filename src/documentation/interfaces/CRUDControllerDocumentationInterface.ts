@@ -1,4 +1,4 @@
-interface CRUDControllerDocumentationInterface {
+export interface CRUDControllerDocumentationInterface {
   controller: {
     create: Record<string, unknown>;
     findAll: Record<string, unknown>;

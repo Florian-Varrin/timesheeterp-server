@@ -34,4 +34,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Documentation
-/documentation
+public/documentation/openapi.json
+public/documentation/openapi.yml
+
+# Production config
+config/production.yml
