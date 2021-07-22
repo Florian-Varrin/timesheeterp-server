@@ -1,4 +1,4 @@
-import { Command, Positional, Option } from 'nestjs-command';
+import { Command, Option } from 'nestjs-command';
 import { Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 
@@ -42,8 +42,10 @@ export class UserCommand {
       password,
     });
 
+    if (!roles) return;
+
     try {
-      const result = await this.userService.addRoles(roles, userId);
+      await this.userService.addRoles(roles, userId);
     } catch (error) {
       await this.userService.remove(userId);
 
