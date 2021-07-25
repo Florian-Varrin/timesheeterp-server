@@ -10,6 +10,6 @@ export class SafeUserDto {
   roles: FormattedUserRolesDto;
 
   static getProperties() {
-    return ['id', 'email', 'roles'];
+    return ['id', 'email', 'roles', 'main_clock_id'];
   }
 }

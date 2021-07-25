@@ -2,7 +2,9 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -13,6 +15,7 @@ import { Project } from '../../../timesheet/projects/entities/project.entity';
 import { RolesEnum } from '../../enums/roles.enum';
 import { UserRole } from './user-role.entity';
 import { FormattedUserRolesDto } from '../dto/formatted-user-roles.dto';
+import { Clock } from '../../../clock/entities/clock.entity';
 
 @Entity()
 @Unique(['email'])
@@ -36,6 +39,13 @@ export class User extends BaseEntity {
 
   @OneToMany((type) => Project, (project) => project.user, { eager: true })
   projects: Project[];
+
+  @OneToOne(() => Clock)
+  @JoinColumn({ name: 'main_clock_id' })
+  clock: Clock;
+
+  @Column({ nullable: true })
+  main_clock_id: number;
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
