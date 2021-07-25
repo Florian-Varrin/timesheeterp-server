@@ -84,6 +84,13 @@ export class ClockService {
     return await this.calculateTime(clock);
   }
 
+  async remove(id: number, user: User): Promise<void> {
+    const clock = await this.findOne(id, user);
+
+    clock.archived = true;
+    await clock.save();
+  }
+
   async start(clockId: number, user: User): Promise<Clock> {
     const date = new Date();
     const clock = await this.findOne(clockId, user);
