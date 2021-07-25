@@ -7,6 +7,8 @@ import {
   UseGuards,
   ValidationPipe,
   Patch,
+  Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { ClockService } from './clock.service';
 import { CreateClockDto } from './dto/create-clock.dto';
@@ -59,6 +61,16 @@ export class ClockController {
     return this.clockService.update(+clockId, updateClockDto, user);
   }
 
+  @Delete(':clockId')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a clock' })
+  remove(
+    @Param('clockId') clockId: string,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.clockService.remove(+clockId, user);
+  }
+
   @Post(':clockId/start')
   start(
     @Param('clockId') clockId: string,
@@ -76,7 +88,7 @@ export class ClockController {
   }
 
   @Post(':clockId/add')
-  add(
+  addTime(
     @Param('clockId') clockId: string,
     @Body() createActionDto: CreateActionDto,
     @GetUser() user: User,
@@ -87,7 +99,7 @@ export class ClockController {
   }
 
   @Post(':clockId/remove')
-  remove(
+  removeTime(
     @Param('clockId') clockId: string,
     @Body() createActionDto: CreateActionDto,
     @GetUser() user: User,
