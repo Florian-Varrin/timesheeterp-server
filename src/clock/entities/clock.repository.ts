@@ -32,7 +32,7 @@ export class ClockRepository extends Repository<Clock> {
     clock.name = name;
     clock.archived = false;
     clock.user = user;
-    clock.current_time = 0;
+    clock.current_time_in_seconds = 0;
 
     try {
       await clock.save();
