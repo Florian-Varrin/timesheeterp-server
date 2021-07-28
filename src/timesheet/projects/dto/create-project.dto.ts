@@ -5,7 +5,7 @@ export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   @MinLength(2)
-  @MaxLength(10)
+  @MaxLength(100)
   name: string;
 
   @ApiProperty()

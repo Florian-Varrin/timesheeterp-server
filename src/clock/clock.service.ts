@@ -161,6 +161,13 @@ export class ClockService {
       current_time += diff;
     }
 
+    const lastEvent = sortedEvents[sortedEvents.length - 1];
+
+    clock.status =
+      !lastEvent || lastEvent.type === EventTypeEnum.STOP
+        ? 'STOPPED'
+        : 'RUNNING';
+
     const actions = await this.actionRepository.getActions(clock);
 
     clock.actions = actions;
@@ -171,8 +178,35 @@ export class ClockService {
     );
 
     current_time += actionsAverage;
-    clock.current_time = Math.round(current_time);
+    current_time = Math.round(current_time);
+    clock.current_time_in_seconds = current_time;
+    clock.current_time_formatted = this.formatTime(current_time);
 
     return clock;
+  }
+
+  formatTime(time: number): string {
+    let minutesNumber: number = Math.floor(time / 60);
+
+    let hoursNumber = 0;
+    if (minutesNumber > 60) {
+      hoursNumber = Math.round(minutesNumber / 60);
+
+      minutesNumber -= hoursNumber * 60;
+    }
+
+    const secondsNumber: number =
+      time - (hoursNumber * 60 * 60 + minutesNumber * 60);
+
+    const hoursString =
+      hoursNumber < 10 ? `0${hoursNumber}` : hoursNumber.toString();
+
+    const minutesString =
+      minutesNumber < 10 ? `0${minutesNumber}` : minutesNumber.toString();
+
+    const secondsString =
+      secondsNumber < 10 ? `0${secondsNumber}` : secondsNumber.toString();
+
+    return `${hoursString}:${minutesString}:${secondsString}`;
   }
 }

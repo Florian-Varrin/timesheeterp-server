@@ -19,8 +19,11 @@ export class Clock extends BaseEntity {
   @Column()
   name: string;
 
-  // In second
-  current_time: number;
+  current_time_in_seconds: number;
+
+  current_time_formatted: string;
+
+  status: 'RUNNING' | 'STOPPED';
 
   @Column()
   archived: boolean;
