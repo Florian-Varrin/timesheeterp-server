@@ -8,12 +8,12 @@ import {
   ValidationPipe,
   Patch,
   Delete,
-  HttpCode,
+  HttpCode, Query, BadRequestException,
 } from '@nestjs/common';
 import { ClockService } from './clock.service';
 import { CreateClockDto } from './dto/create-clock.dto';
 import { UpdateClockDto } from './dto/update-clock.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/decorators/get-users.decorator';
 import { User } from '../auth/users/entities/user.entity';
@@ -38,8 +38,17 @@ export class ClockController {
 
   @Get()
   @ApiOperation({ summary: 'Get all clocks for a user' })
-  findAll(@GetUser() user: User): Promise<Clock[]> {
-    return this.clockService.findAll(user.id);
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: '"running" or "stopped"',
+  })
+  findAll(@GetUser() user: User, @Query('status') status): Promise<Clock[]> {
+    if (status) this.clockService.checkStatus(status.toUpperCase());
+
+    return status
+      ? this.clockService.findAll(user.id, status.toUpperCase())
+      : this.clockService.findAll(user.id);
   }
 
   @Get(':clockId')

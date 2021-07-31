@@ -14,6 +14,7 @@ import { EventTypeEnum } from './enums/event-type.enum';
 import { ClockEventRepository } from './entities/clock-event.repository';
 import { ClockActionRepository } from './entities/clock-action.repository';
 import { ActionTypeEnum } from './enums/action-type.enum';
+import { StatusType } from './types/status.type';
 
 @Injectable()
 export class ClockService {
@@ -39,13 +40,15 @@ export class ClockService {
 
     return clock;
   }
-  async findAll(userId: number): Promise<Clock[]> {
+  async findAll(userId: number, status?: StatusType): Promise<Clock[]> {
     const clocks = await this.clockRepository.getClocks(userId);
 
     const clocksWithTime = [];
-    clocks.forEach((clock) => {
-      clocksWithTime.push(this.calculateTime(clock));
-    });
+    for (const clock of clocks) {
+      const clockWithTime = await this.calculateTime(clock);
+      if (!status || clockWithTime.status === status)
+        clocksWithTime.push(clockWithTime);
+    }
 
     return Promise.all(clocksWithTime);
   }
@@ -208,5 +211,12 @@ export class ClockService {
       secondsNumber < 10 ? `0${secondsNumber}` : secondsNumber.toString();
 
     return `${hoursString}:${minutesString}:${secondsString}`;
+  }
+
+  checkStatus(status) {
+    if (status !== 'RUNNING' && status !== 'STOPPED')
+      throw new BadRequestException(
+        'status must be either "running" or "stopped"',
+      );
   }
 }
