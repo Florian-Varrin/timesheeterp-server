@@ -40,12 +40,16 @@ export class ClockService {
 
     return clock;
   }
-  async findAll(userId: number, status?: StatusType): Promise<Clock[]> {
+  async findAll(
+    userId: number,
+    status?: StatusType,
+    hydrated = true,
+  ): Promise<Clock[]> {
     const clocks = await this.clockRepository.getClocks(userId);
 
     const clocksWithTime = [];
     for (const clock of clocks) {
-      const clockWithTime = await this.calculateTime(clock);
+      const clockWithTime = await this.calculateTime(clock, hydrated);
       if (!status || clockWithTime.status === status)
         clocksWithTime.push(clockWithTime);
     }
@@ -53,7 +57,7 @@ export class ClockService {
     return Promise.all(clocksWithTime);
   }
 
-  async findOne(id: number, user: User): Promise<Clock> {
+  async findOne(id: number, hydrated = true, user: User): Promise<Clock> {
     const clock = await this.clockRepository.findOne({
       where: { id },
     });
@@ -66,7 +70,7 @@ export class ClockService {
     delete clock.user_id;
     delete clock.archived;
 
-    return await this.calculateTime(clock);
+    return await this.calculateTime(clock, hydrated);
   }
 
   async update(
@@ -76,7 +80,7 @@ export class ClockService {
   ): Promise<Clock> {
     const { name } = updateClockDto;
 
-    const clock = await this.findOne(id, user);
+    const clock = await this.findOne(id, false, user);
 
     if (name) clock.name = name;
 
@@ -88,7 +92,7 @@ export class ClockService {
   }
 
   async remove(id: number, user: User): Promise<void> {
-    const clock = await this.findOne(id, user);
+    const clock = await this.findOne(id, false, user);
 
     clock.archived = true;
     await clock.save();
@@ -96,7 +100,7 @@ export class ClockService {
 
   async start(clockId: number, user: User): Promise<Clock> {
     const date = new Date();
-    const clock = await this.findOne(clockId, user);
+    const clock = await this.findOne(clockId, false, user);
 
     const lastEvent = await this.eventRepository.getLastEvent(clock);
 
@@ -111,7 +115,7 @@ export class ClockService {
 
   async stop(clockId: number, user: User): Promise<Clock> {
     const date = new Date();
-    const clock = await this.findOne(clockId, user);
+    const clock = await this.findOne(clockId, false, user);
 
     const lastEvent = await this.eventRepository.getLastEvent(clock);
 
@@ -125,7 +129,7 @@ export class ClockService {
   }
 
   async addTime(clockId: number, time: number, user: User): Promise<Clock> {
-    const clock = await this.findOne(clockId, user);
+    const clock = await this.findOne(clockId, false, user);
 
     await this.actionRepository.createAction(ActionTypeEnum.ADD, clock, time);
 
@@ -133,7 +137,7 @@ export class ClockService {
   }
 
   async removeTime(clockId: number, time: number, user: User): Promise<Clock> {
-    const clock = await this.findOne(clockId, user);
+    const clock = await this.findOne(clockId, false, user);
 
     await this.actionRepository.createAction(
       ActionTypeEnum.REMOVE,
@@ -144,7 +148,21 @@ export class ClockService {
     return this.calculateTime(clock);
   }
 
-  async calculateTime(clock: Clock): Promise<Clock> {
+  async reset(clockId: number, user: User): Promise<Clock> {
+    const clock = await this.findOne(clockId, false, user);
+
+    const { current_time_in_seconds } = clock;
+
+    await this.actionRepository.createAction(
+      ActionTypeEnum.REMOVE,
+      clock,
+      current_time_in_seconds,
+    );
+
+    return this.calculateTime(clock);
+  }
+
+  async calculateTime(clock: Clock, hydrated = false): Promise<Clock> {
     const events = await this.eventRepository.getEvents(clock);
 
     clock.events = events;
@@ -185,6 +203,11 @@ export class ClockService {
     clock.current_time_in_seconds = current_time;
     clock.current_time_formatted = this.formatTime(current_time);
 
+    if (!hydrated) {
+      delete clock.actions;
+      delete clock.events;
+    }
+
     return clock;
   }
 
@@ -218,5 +241,14 @@ export class ClockService {
       throw new BadRequestException(
         'status must be either "running" or "stopped"',
       );
+  }
+
+  formatHydratedParameter(hydrated: string): boolean {
+    if (hydrated !== 'true' && hydrated !== 'false')
+      throw new BadRequestException(
+        'hydrated must be either "true" or "false"',
+      );
+
+    return hydrated === 'true';
   }
 }

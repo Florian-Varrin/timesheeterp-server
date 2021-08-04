@@ -43,21 +43,42 @@ export class ClockController {
     required: false,
     description: '"running" or "stopped"',
   })
-  findAll(@GetUser() user: User, @Query('status') status): Promise<Clock[]> {
+  @ApiQuery({
+    name: 'hydrated',
+    required: false,
+    description: 'show actions and events if true, "true" or "false"',
+  })
+  findAll(
+    @GetUser() user: User,
+    @Query('status') status = null,
+    @Query('hydrated') hydrated = 'true',
+  ): Promise<Clock[]> {
     if (status) this.clockService.checkStatus(status.toUpperCase());
 
-    return status
-      ? this.clockService.findAll(user.id, status.toUpperCase())
-      : this.clockService.findAll(user.id);
+    return this.clockService.findAll(
+      user.id,
+      status ? status.toUpperCase() : status,
+      this.clockService.formatHydratedParameter(hydrated),
+    );
   }
 
   @Get(':clockId')
   @ApiOperation({ summary: 'Get a clock' })
+  @ApiQuery({
+    name: 'hydrated',
+    required: false,
+    description: 'show actions and events if true, "true" or "false"',
+  })
   findOne(
     @Param('clockId') clockId: string,
+    @Query('hydrated') hydrated = 'true',
     @GetUser() user: User,
   ): Promise<Clock> {
-    return this.clockService.findOne(+clockId, user);
+    return this.clockService.findOne(
+      +clockId,
+      this.clockService.formatHydratedParameter(hydrated),
+      user,
+    );
   }
 
   @Patch(':clockId')
@@ -116,5 +137,13 @@ export class ClockController {
     const { time } = createActionDto;
 
     return this.clockService.removeTime(+clockId, time, user);
+  }
+
+  @Post(':clockId/reset')
+  reset(
+    @Param('clockId') clockId: string,
+    @GetUser() user: User,
+  ): Promise<Clock> {
+    return this.clockService.reset(+clockId, user);
   }
 }
