@@ -193,7 +193,7 @@ export class ClockService {
 
     let hoursNumber = 0;
     if (minutesNumber > 60) {
-      hoursNumber = Math.round(minutesNumber / 60);
+      hoursNumber = Math.floor(minutesNumber / 60);
 
       minutesNumber -= hoursNumber * 60;
     }
