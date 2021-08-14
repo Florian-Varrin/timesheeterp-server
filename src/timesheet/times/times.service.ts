@@ -21,7 +21,7 @@ export class TimesService {
     projectId: number,
     user: User,
   ): Promise<Time> {
-    const project = await this.projectsService.findOne(projectId, user);
+    const project = await this.projectsService.findOneById(projectId, user);
 
     return this.timeRepository.createTime(createTimeDto, project);
   }
@@ -31,15 +31,17 @@ export class TimesService {
     user: User,
     timesFilterDto: TimesFilterDto,
   ): Promise<Time[]> {
-    await this.projectsService.findOne(projectId, user);
+    await this.projectsService.findOneById(projectId, user);
 
-    const times = await this.timeRepository.getTimes(projectId, timesFilterDto);
-
-    return times;
+    return await this.timeRepository.getTimes(projectId, timesFilterDto);
   }
 
-  async findOne(timeId: number, projectId: number, user: User): Promise<Time> {
-    await this.projectsService.findOne(projectId, user);
+  async findOneById(
+    timeId: number,
+    projectId: number,
+    user: User,
+  ): Promise<Time> {
+    await this.projectsService.findOneById(projectId, user);
 
     const time = await this.timeRepository.findOne({
       where: {
@@ -61,7 +63,7 @@ export class TimesService {
   ): Promise<Time> {
     const { date, duration, description } = updateTimeDto;
 
-    const time = await this.findOne(timeId, projectId, user);
+    const time = await this.findOneById(timeId, projectId, user);
 
     if (date) time.date = new Date(date);
     if (duration) time.duration = duration;
@@ -71,7 +73,7 @@ export class TimesService {
   }
 
   async remove(timeId: number, projectId: number, user: User): Promise<void> {
-    await this.projectsService.findOne(projectId, user);
+    await this.projectsService.findOneById(projectId, user);
 
     const { affected } = await this.timeRepository.delete(timeId);
 

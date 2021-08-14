@@ -25,12 +25,10 @@ export class ProjectsService {
   }
 
   async findAll(user: User): Promise<Project[]> {
-    const projects = await this.projectRepository.getProjects(user.id);
-
-    return projects;
+    return await this.projectRepository.getProjects(user.id);
   }
 
-  async findOne(id: number, user: User): Promise<Project> {
+  async findOneById(id: number, user: User): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: {
         id,
@@ -55,7 +53,7 @@ export class ProjectsService {
   ): Promise<Project> {
     const { name, hour_rate } = updateProjectDto;
 
-    const project = await this.findOne(id, user);
+    const project = await this.findOneById(id, user);
 
     if (name) project.name = name;
     if (hour_rate) project.hour_rate = hour_rate;
@@ -68,7 +66,7 @@ export class ProjectsService {
   }
 
   async remove(id: number, user: User): Promise<void> {
-    const project = await this.findOne(id, user);
+    const project = await this.findOneById(id, user);
 
     project.archived = true;
     await project.save();

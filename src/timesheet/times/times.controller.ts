@@ -55,7 +55,7 @@ export class TimesController {
     @Param('projectId') projectId: string,
     @GetUser() user: User,
   ): Promise<Time> {
-    return this.timesService.findOne(+timeId, +projectId, user);
+    return this.timesService.findOneById(+timeId, +projectId, user);
   }
 
   @Patch(':timeId')

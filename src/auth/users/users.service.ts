@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -33,7 +32,7 @@ export class UsersService {
     return users.map((user) => user.makeSafe());
   }
 
-  async findOne(
+  async findOneById(
     id: number,
     withRoles = true,
     makeSafe = true,
@@ -48,7 +47,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<SafeUserDto> {
-    const user = <User>await this.findOne(id, true, false);
+    const user = <User>await this.findOneById(id, true, false);
 
     return await this.userRepository.updateUser(user, updateUserDto);
   }
@@ -60,7 +59,7 @@ export class UsersService {
   }
 
   async addRoles(roles: string[], userId: number): Promise<SafeUserDto> {
-    const user = (await this.findOne(userId, false, false)) as User;
+    const user = (await this.findOneById(userId, false, false)) as User;
 
     for (let role of roles) {
       role = role.toUpperCase();
@@ -81,19 +80,16 @@ export class UsersService {
       await this.userRoleRepository.createUserRole({ user, role });
     }
 
-    return (await this.findOne(user.id)) as SafeUserDto;
+    return (await this.findOneById(user.id)) as SafeUserDto;
   }
 
-  async removeRole(roleId: number, user: User): Promise<SafeUserDto> {
+  async removeRole(roleId: number, userId: number): Promise<SafeUserDto> {
     const userRole = await this.userRoleRepository.findOne(roleId);
 
     if (!userRole) throw new NotFoundException('Role not found');
 
-    if (userRole.user_id !== user.id)
-      throw new ForbiddenException('You cannot access this role');
-
     await this.userRoleRepository.delete(roleId);
 
-    return (await this.findOne(user.id)) as SafeUserDto;
+    return (await this.findOneById(userId)) as SafeUserDto;
   }
 }

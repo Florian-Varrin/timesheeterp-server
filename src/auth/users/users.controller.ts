@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SafeUserDto } from './dto/safe-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -57,7 +57,7 @@ export class UsersController {
     if (user.id !== +userId && !user.hasOneRole([RolesEnum.ADMIN]))
       throw new ForbiddenException('You cannot access this user');
 
-    return this.usersService.findOne(+userId) as Promise<SafeUserDto>;
+    return this.usersService.findOneById(+userId) as Promise<SafeUserDto>;
   }
 
   @Patch(':userId')
@@ -90,7 +90,11 @@ export class UsersController {
   async addRoles(
     @Body('roles') roles: string[],
     @Param('userId') userId: string,
+    @GetUser() user: User,
   ): Promise<SafeUserDto> {
+    if (user.id !== +userId && !user.hasOneRole([RolesEnum.ADMIN]))
+      throw new ForbiddenException('You cannot access this user');
+
     return this.usersService.addRoles(roles, +userId);
   }
 
@@ -103,6 +107,9 @@ export class UsersController {
     @Param('roleId') roleId: string,
     @GetUser() user: User,
   ): Promise<SafeUserDto> {
-    return this.usersService.removeRole(+roleId, user);
+    if (user.id !== +userId && !user.hasOneRole([RolesEnum.ADMIN]))
+      throw new ForbiddenException('You cannot access this user');
+
+    return this.usersService.removeRole(+roleId, +userId);
   }
 }

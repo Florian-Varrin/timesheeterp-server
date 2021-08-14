@@ -35,13 +35,17 @@ export class ClockEventRepository extends Repository<ClockEvent> {
     return await query.getMany();
   }
 
+  async resetEvents(clock: Clock): Promise<ClockEvent[]> {
+    const events = await this.getEvents(clock);
+
+    return await this.remove(events);
+  }
+
   async getLastEvent(clock: Clock): Promise<ClockEvent> {
     const events = await this.getEvents(clock);
 
-    const event = events
+    return events
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .reverse()[0];
-
-    return event;
   }
 }
