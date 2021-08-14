@@ -47,7 +47,7 @@ export class ProjectsController {
     @Param('projectId') projectId: string,
     @GetUser() user: User,
   ): Promise<Project> {
-    return this.projectsService.findOne(+projectId, user);
+    return this.projectsService.findOneById(+projectId, user);
   }
 
   @Patch(':projectId')

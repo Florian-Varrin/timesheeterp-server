@@ -57,7 +57,7 @@ export class ClockService {
     return Promise.all(clocksWithTime);
   }
 
-  async findOne(id: number, hydrated = true, user: User): Promise<Clock> {
+  async findOneById(id: number, hydrated = true, user: User): Promise<Clock> {
     const clock = await this.clockRepository.findOne({
       where: { id },
     });
@@ -80,7 +80,7 @@ export class ClockService {
   ): Promise<Clock> {
     const { name } = updateClockDto;
 
-    const clock = await this.findOne(id, false, user);
+    const clock = await this.findOneById(id, false, user);
 
     if (name) clock.name = name;
 
@@ -92,7 +92,7 @@ export class ClockService {
   }
 
   async remove(id: number, user: User): Promise<void> {
-    const clock = await this.findOne(id, false, user);
+    const clock = await this.findOneById(id, false, user);
 
     clock.archived = true;
     await clock.save();
@@ -100,36 +100,32 @@ export class ClockService {
 
   async start(clockId: number, user: User): Promise<Clock> {
     const date = new Date();
-    const clock = await this.findOne(clockId, false, user);
+    const clock = await this.findOneById(clockId, false, user);
 
     const lastEvent = await this.eventRepository.getLastEvent(clock);
 
-    if (lastEvent && lastEvent.type === EventTypeEnum.START) {
-      throw new BadRequestException(`Clock ${clockId} already started`);
+    if (!lastEvent || lastEvent.type === EventTypeEnum.STOP) {
+      await this.eventRepository.createEvent(EventTypeEnum.START, clock, date);
     }
-
-    await this.eventRepository.createEvent(EventTypeEnum.START, clock, date);
 
     return this.calculateTime(clock);
   }
 
   async stop(clockId: number, user: User): Promise<Clock> {
     const date = new Date();
-    const clock = await this.findOne(clockId, false, user);
+    const clock = await this.findOneById(clockId, false, user);
 
     const lastEvent = await this.eventRepository.getLastEvent(clock);
 
-    if (!lastEvent || lastEvent.type === EventTypeEnum.STOP) {
-      throw new BadRequestException(`Clock ${clockId} already stopped`);
+    if (lastEvent && lastEvent.type === EventTypeEnum.START) {
+      await this.eventRepository.createEvent(EventTypeEnum.STOP, clock, date);
     }
-
-    await this.eventRepository.createEvent(EventTypeEnum.STOP, clock, date);
 
     return this.calculateTime(clock);
   }
 
   async addTime(clockId: number, time: number, user: User): Promise<Clock> {
-    const clock = await this.findOne(clockId, false, user);
+    const clock = await this.findOneById(clockId, false, user);
 
     await this.actionRepository.createAction(ActionTypeEnum.ADD, clock, time);
 
@@ -137,7 +133,7 @@ export class ClockService {
   }
 
   async removeTime(clockId: number, time: number, user: User): Promise<Clock> {
-    const clock = await this.findOne(clockId, false, user);
+    const clock = await this.findOneById(clockId, false, user);
 
     await this.actionRepository.createAction(
       ActionTypeEnum.REMOVE,
@@ -149,15 +145,12 @@ export class ClockService {
   }
 
   async reset(clockId: number, user: User): Promise<Clock> {
-    const clock = await this.findOne(clockId, false, user);
+    const clock = await this.findOneById(clockId, false, user);
 
-    const { current_time_in_seconds } = clock;
-
-    await this.actionRepository.createAction(
-      ActionTypeEnum.REMOVE,
-      clock,
-      current_time_in_seconds,
-    );
+    await Promise.all([
+      this.eventRepository.resetEvents(clock),
+      this.actionRepository.resetActions(clock),
+    ]);
 
     return this.calculateTime(clock);
   }

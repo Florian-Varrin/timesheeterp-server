@@ -35,6 +35,12 @@ export class ClockActionRepository extends Repository<ClockAction> {
     return await query.getMany();
   }
 
+  async resetActions(clock: Clock): Promise<ClockAction[]> {
+    const actions = await this.getActions(clock);
+
+    return await this.remove(actions);
+  }
+
   async calculateActionAverage(
     clock: Clock,
     actions?: ClockAction[],

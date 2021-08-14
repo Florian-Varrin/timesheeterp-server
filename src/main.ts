@@ -6,7 +6,9 @@ import { DocumentationService } from './documentation/documentation.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true,
+  });
   app.setGlobalPrefix(config.get('api.prefix'));
 
   DocumentationService.getInstance(app);

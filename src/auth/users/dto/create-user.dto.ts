@@ -20,9 +20,9 @@ export class CreateUserDto {
   @ApiProperty(doc.dto.create.password)
   @IsString()
   @MinLength(6)
-  @MaxLength(25)
+  @MaxLength(35)
   @Matches(
-    /^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z])$/,
+    /^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).*$/,
     {
       message: 'password is too weak',
     },

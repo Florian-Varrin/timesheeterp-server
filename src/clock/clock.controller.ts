@@ -2,18 +2,25 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   UseGuards,
   ValidationPipe,
   Patch,
   Delete,
-  HttpCode, Query, BadRequestException,
+  HttpCode,
+  Query,
 } from '@nestjs/common';
 import { ClockService } from './clock.service';
 import { CreateClockDto } from './dto/create-clock.dto';
 import { UpdateClockDto } from './dto/update-clock.dto';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/decorators/get-users.decorator';
 import { User } from '../auth/users/entities/user.entity';
@@ -74,7 +81,7 @@ export class ClockController {
     @Query('hydrated') hydrated = 'true',
     @GetUser() user: User,
   ): Promise<Clock> {
-    return this.clockService.findOne(
+    return this.clockService.findOneById(
       +clockId,
       this.clockService.formatHydratedParameter(hydrated),
       user,
@@ -101,7 +108,7 @@ export class ClockController {
     return this.clockService.remove(+clockId, user);
   }
 
-  @Post(':clockId/start')
+  @Put(':clockId/start')
   start(
     @Param('clockId') clockId: string,
     @GetUser() user: User,
@@ -109,7 +116,7 @@ export class ClockController {
     return this.clockService.start(+clockId, user);
   }
 
-  @Post(':clockId/stop')
+  @Put(':clockId/stop')
   stop(
     @Param('clockId') clockId: string,
     @GetUser() user: User,
