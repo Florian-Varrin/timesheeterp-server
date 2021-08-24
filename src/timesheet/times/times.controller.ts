@@ -19,7 +19,12 @@ import { GetUser } from '../../auth/decorators/get-users.decorator';
 import { User } from '../../auth/users/entities/user.entity';
 import { Time } from './entities/time.entity';
 import { TimesFilterDto } from './dto/times-filter.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('projects/:projectId/times')
 @ApiTags('times')
@@ -40,6 +45,16 @@ export class TimesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all times for a project' })
+  @ApiQuery({
+    name: 'start_date',
+    required: false,
+    description: 'from this date in YYYY-MM-DD format',
+  })
+  @ApiQuery({
+    name: 'end_date',
+    required: false,
+    description: 'until this date in YYYY-MM-DD format',
+  })
   findAll(
     @Param('projectId') projectId: string,
     @GetUser() user: User,
