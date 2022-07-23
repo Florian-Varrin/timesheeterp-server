@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import * as fsSync from 'fs';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as config from 'config';
@@ -24,7 +25,6 @@ export class DocumentationService {
   jsonPath: string;
   yamlPath: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor(app) {
     this.app = app;
 
@@ -46,9 +46,6 @@ export class DocumentationService {
 
     this.basePath = join(__dirname, '..', '..', 'public', 'documentation');
 
-    this.setJson();
-    this.setYaml();
-
     SwaggerModule.setup(
       `${config.get('api.prefix')}/documentation`,
       this.app,
@@ -62,6 +59,15 @@ export class DocumentationService {
     }
 
     return DocumentationService.instance;
+  }
+
+  async writeDocumentationFiles() {
+    // Check synchronously because only on application startup
+    if (!fsSync.existsSync(this.basePath)) {
+      await fs.mkdir(this.basePath);
+    }
+    await this.setJson();
+    await this.setYaml();
   }
 
   async setYaml() {

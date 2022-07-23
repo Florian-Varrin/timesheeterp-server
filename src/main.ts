@@ -11,7 +11,8 @@ async function bootstrap() {
   });
   app.setGlobalPrefix(config.get('api.prefix'));
 
-  DocumentationService.getInstance(app);
+  const documentationService = DocumentationService.getInstance(app);
+  await documentationService.writeDocumentationFiles();
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
